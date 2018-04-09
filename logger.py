@@ -2,12 +2,12 @@
 
 import logging
 import logging.handlers
-from config import log_filename, log_format, logger_name
+from config import LOG_FILENAME, LOG_FORMAT, LOGGER_NAME
 
-fomatter = logging.Formatter(log_format)
-filehandler = logging.FileHandler(log_filename)
+fomatter = logging.Formatter(LOG_FORMAT)
+filehandler = logging.FileHandler(LOG_FILENAME)
 filehandler.setFormatter(fomatter)
 
-logger = logging.getLogger(logger_name)
+logger = logging.getLogger(LOGGER_NAME)
 logger.addHandler(filehandler)
 logger.setLevel(logging.DEBUG)

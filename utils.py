@@ -2,33 +2,34 @@
 
 import requests
 import json
+from query import *
 from config import *
 
-def get_tboard_id(organ_name, target_board_name, query):
+def get_tboard_id(organ_name, target_board_name):
     url = "https://api.trello.com/1/organization/" + organ_name + "/boards"
-    boards = requests.request("GET", url, params=query)
+    boards = requests.request("GET", url, params=QUERY)
     boards_jdata = json.loads(boards.text)
     for jd in boards_jdata:
         if jd['name'] == target_board_name:
             return jd['id']
     return None
 
-def search_done_list(bid, query):
+def search_done_list(bid):
     url = "https://api.trello.com/1/boards/"+bid+"/lists"
-    lists = requests.request("GET", url, params=query)
+    lists = requests.request("GET", url, params=QUERY)
     for l in json.loads(lists.text):
-        if l['name'] == target_list:
+        if l['name'] == TARGET_LIST:
             url = "https://api.trello.com/1/lists/"+l['id']+"/cards?fields=all"
-            cards_in_list = requests.request("GET", url, params=query)
+            cards_in_list = requests.request("GET", url, params=QUERY)
             return l['id'], len(json.loads(cards_in_list.text))
     return None, 0
         
-def create_archive_list(bid, month_name, date, query):
+def create_archive_list(bid):
     url = "https://api.trello.com/1/boards/"+bid+"/lists"
-    new_q = query.copy()
-    new_q['name'] = "아카이브(~ " + str(date) + " " + month_name + ".)"
+    new_q = QUERY.copy()
+    new_q['name'] = "아카이브(~ " + str(THE_DAY_BEFORE) + " " + MONTH_NAME + ".)"
     new_q['pos'] = "bottom"
-    existance = get_list_ids(bid, [new_q['name']], query)
+    existance = get_list_ids(bid, [new_q['name']])
     if not existance:
         res = requests.request("POST", url, params=new_q)
         archive_list = json.loads(res.text)
@@ -36,31 +37,31 @@ def create_archive_list(bid, month_name, date, query):
     else:
         return existance[0]
 
-def move_all_cards(did, idBoard, idList, query):
+def move_all_cards(did, idBoard, idList):
     url = "https://api.trello.com/1/lists/" + did + "/moveAllCards"
-    new_q = query.copy()
+    new_q = QUERY.copy()
     new_q['idBoard'] = idBoard
     new_q['idList'] = idList
     res = requests.request("POST", url, params=new_q)
     print(res)
 
-def compute_sprint_n(start_ym, today):
+def compute_sprint_n(start_ym):
     sy, sm = start_ym.split('-')    
-    ty, tm = today.strftime('%Y-%m').split('-')
+    ty, tm = TODAY.strftime('%Y-%m').split('-')
     n = (int(ty) - int(sy)) * 12 + (int(tm) - int(sm)) + 1
     return n
 
-def get_tboard_name(team, month_name):
-    info = team_info[team]
-    n = compute_sprint_n(info['start_ym'], today)
-    board_name = "Sprint" + str(n) + " for " + month_name + "." 
+def get_tboard_name(team):
+    info = TEAM_INFO[team]
+    n = compute_sprint_n(info['start_ym'])
+    board_name = "Sprint" + str(n) + " for " + MONTH_NAME + "." 
 
     return board_name
         
-def get_board_labels(bid, query):
+def get_board_labels(bid):
     result = []
     url = "https://api.trello.com/1/boards/"+ bid + "/labels"
-    res = requests.request("GET", url, params=query)
+    res = requests.request("GET", url, params=QUERY)
     labels = json.loads(res.text)
 
     for l in labels:
@@ -71,11 +72,11 @@ def get_board_labels(bid, query):
 
     return result
 
-def create_board(n, month_name, organ_name, query):
+def create_board(n, organ_name):
     url = "https://api.trello.com/1/boards/"
-    new_q = query.copy()
-    new_q['name'] =  "Sprint" + str(n) + " for " + month_name + "."
-    existance = get_tboard_id(organ_name, new_q['name'], query)
+    new_q = QUERY.copy()
+    new_q['name'] =  "Sprint" + str(n) + " for " + MONTH_NAME + "."
+    existance = get_tboard_id(organ_name, new_q['name'])
     if existance:
         return existance[0], new_q['name']
 
@@ -85,18 +86,18 @@ def create_board(n, month_name, organ_name, query):
     res = requests.request("POST", url, params=new_q)
     return json.loads(res.text)['id'], new_q['name']
 
-def update_board_labels(new_bid, labels, query):
+def update_board_labels(new_bid, labels):
     for l in labels:
         url = "https://api.trello.com/1/boards/" + new_bid + "/labels/"
-        new_q = query.copy()
+        new_q = QUERY.copy()
         new_q['name'] = l['name']
         new_q['color'] = l['color']
         res = requests.request("POST", url, params=new_q)
 
-def get_list_ids(bid, board_lists, query):
+def get_list_ids(bid, board_lists):
     list_ids = []
     url = "https://api.trello.com/1/boards/" + bid + "/lists"
-    res = requests.request("GET", url, params=query)
+    res = requests.request("GET", url, params=QUERY)
     blists = json.loads(res.text)
     
     for bl in blists:
@@ -105,11 +106,11 @@ def get_list_ids(bid, board_lists, query):
 
     return list_ids
     
-def move_lists(list_ids, new_bid, query):
+def move_lists(list_ids, new_bid):
     list_ids.reverse()
     for lid in list_ids:
         url = "https://api.trello.com/1/lists/" + lid + "/idBoard"  
-        new_q = query.copy()
+        new_q = QUERY.copy()
         new_q['value'] = new_bid
         res = requests.request("PUT", url, params=new_q)
         print(res.text)
