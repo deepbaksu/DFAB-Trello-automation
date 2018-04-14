@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 #_*_ coding: utf-8 _*_
 
-from config import *
-from query import *
+import sys
+sys.path.insert(0, './lib')
+
 from utils import *
 from logger import logger
 

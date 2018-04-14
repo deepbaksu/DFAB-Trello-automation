@@ -4,3 +4,4 @@
 __pycache__/
 query.py
 dfabTrello.log
+.gitignore
