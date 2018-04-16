@@ -25,7 +25,7 @@ The tasks are executed using `Crontab`.
 But it is **NOT** included. If you want to use this, add `query.py`. The `query.py` is like  
 
 ```python
-Query = { "key" : "<your key>", 
+QUERY = { "key" : "<your key>", 
           "token": "<your token>" }
 ```
 
