@@ -51,10 +51,15 @@ def compute_sprint_n(start_ym):
     n = (int(ty) - int(sy)) * 12 + (int(tm) - int(sm)) + 1
     return n
 
-def get_tboard_name(team):
+def get_tboard_name(team, last_month=False):
     info = TEAM_INFO[team]
     n = compute_sprint_n(info['start_ym'])
-    board_name = "Sprint" + str(n) + " for " + MONTH_NAME + "." 
+
+    if last_month:
+        last_month_name = YESTERDAY.strftime('%b')
+        board_name = "Sprint" + str(n-1) + " for " + last_month_name + "." 
+    else:
+        board_name = "Sprint" + str(n) + " for " + MONTH_NAME + "." 
 
     return board_name
         
@@ -113,4 +118,4 @@ def move_lists(list_ids, new_bid):
         new_q = QUERY.copy()
         new_q['value'] = new_bid
         res = requests.request("PUT", url, params=new_q)
-        print(res.text)
+#        print(res.text)

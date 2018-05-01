@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import os
 
 ## test mode
-TEST = False
+TEST = True
 
 ## date
 TODAY = datetime.today()
