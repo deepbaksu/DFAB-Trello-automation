@@ -35,7 +35,7 @@ for team in TEAM_INFO.keys():
         done_list_id, n_card = search_done_list(bid)
 
         if done_list_id and n_card > 0:
-            archive_list_id = create_archive_list(bid)
+            archive_list_id = create_archive_list(bid, last_month=True)
             logger.info("Created archive-list(" + team + ") in " + copy_board_name)
             move_all_cards(done_list_id, bid, archive_list_id)
             logger.info("Moved all cards in done-list")

@@ -24,10 +24,14 @@ def search_done_list(bid):
             return l['id'], len(json.loads(cards_in_list.text))
     return None, 0
         
-def create_archive_list(bid):
+def create_archive_list(bid, last_month=False):
     url = "https://api.trello.com/1/boards/"+bid+"/lists"
     new_q = QUERY.copy()
-    new_q['name'] = "아카이브(~ " + str(THE_DAY_BEFORE) + " " + MONTH_NAME + ".)"
+    if last_month:
+        m_name = YESTERDAY.strftime('%b')
+    else:
+        m_name = MONTH_NAME
+    new_q['name'] = "아카이브(~ " + str(THE_DAY_BEFORE) + " " + m_name + ".)"
     new_q['pos'] = "bottom"
     existance = get_list_ids(bid, [new_q['name']])
     if not existance:
@@ -118,4 +122,13 @@ def move_lists(list_ids, new_bid):
         new_q = QUERY.copy()
         new_q['value'] = new_bid
         res = requests.request("PUT", url, params=new_q)
-#        print(res.text)
+
+#def get_members(bid):
+##    url = "https://api.trello.com/1/boards/" + bid
+#    url = "https://api.trello.com/1/boards/" + bid + "/members"
+#    res = requests.request("GET", url, params=QUERY)
+#    print(res.text)
+##    print(res.text)
+#    blists = json.loads(res.text)
+#
+##    print(blists)
