@@ -9,8 +9,10 @@ TEST = False
 ## date
 TODAY = datetime.today()
 YESTERDAY = TODAY - timedelta(1)
-MONTH_NAME = TODAY.strftime('%b')
 THE_DAY_BEFORE = YESTERDAY.day
+MONTH_NAME = TODAY.strftime('%b')
+LAST_MONTH = TODAY.replace(day=1) - timedelta(days=1)
+LAST_MONTH_NAME = LAST_MONTH.strftime('%b')
 
 ## 
 TEAM_INFO = {
@@ -21,6 +23,10 @@ TEAM_INFO = {
               }
 TARGET_LIST = '완료'
 BOARD_LISTS = ['아이디어', '오늘 할 일', '완료', '일시정지']
+if TEST:
+    ADMIN_USER_NAME = 'minjikim59'
+else:
+    ADMIN_USER_NAME = 'jinwoopark8'
 
 ## logger
 if TEST:

@@ -10,7 +10,6 @@ from logger import logger
 logger.debug(DOTTED_LINE)
 logger.info("Start creating new Sprint board for each team")
 
-#for infos in TEAM_INFO.values():
 for team in TEAM_INFO.keys():
     infor = TEAM_INFO[team]
 
@@ -45,23 +44,30 @@ for team in TEAM_INFO.keys():
             logger.error("No done-list in the board" )
 
         # create new board
-        new_bid, new_board_name = create_board(sprint_n, organ_name)
-        logger.info("Created new Sprint board(" + new_board_name + ") in " + organ_name)
-        labels = get_board_labels(bid)
-
-        if labels:
-            update_board_labels(new_bid, labels)
-            logger.info("Updated labels")
-
-        list_ids = get_list_ids(bid, BOARD_LISTS)
-
-        if list_ids:
-            move_lists(list_ids, new_bid)
-            logger.info("Moved lists")
+        new_bid, new_board_name, existance = create_board(sprint_n, organ_name)
+        if existance:
+            logger.info("New Sprint board(" + new_board_name + ") is already in " + organ_name)
         else:
-            logger.error("No lists to move")
+            logger.info("Created new Sprint board(" + new_board_name + ") in " + organ_name)
+
+            # update board labels and members
+            labels = get_board_labels(bid)
+            if labels:
+                update_board_labels(new_bid, labels)
+                logger.info("Updated labels")
+
+            mem_ids, admin_id = get_members(bid)
+            if mem_ids:
+                update_board_members(new_bid, mem_ids, admin_id)
+                logger.info("Updated members")
+
+            # move lists to new board
+            list_ids = get_list_ids(bid, BOARD_LISTS)
+            if list_ids:
+                move_lists(list_ids, new_bid)
+                logger.info("Moved lists")
+            else:
+                logger.error("No lists to move")
     else:
         logger.error("No prior board in " + organ_name)
-
-
 
