@@ -18,7 +18,7 @@ def search_done_list(bid):
     url = "https://api.trello.com/1/boards/"+bid+"/lists"
     lists = requests.request("GET", url, params=QUERY)
     for l in json.loads(lists.text):
-        if l['name'] == TARGET_LIST:
+        if l['name'].encode() == TARGET_LIST.encode():
             url = "https://api.trello.com/1/lists/"+l['id']+"/cards?fields=all"
             cards_in_list = requests.request("GET", url, params=QUERY)
             return l['id'], len(json.loads(cards_in_list.text))
@@ -108,8 +108,9 @@ def get_list_ids(bid, board_lists):
     blists = json.loads(res.text)
     
     for bl in blists:
-        if bl['name'] in board_lists:
-            list_ids.append(bl['id'])
+        for board_list in board_lists:
+            if bl['name'].encode() == board_list.encode():
+                list_ids.append(bl['id'])
 
     return list_ids
     

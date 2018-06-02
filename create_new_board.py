@@ -7,8 +7,8 @@ sys.path.insert(0, './lib')
 from utils import *
 from logger import logger
 
-logger.debug(DOTTED_LINE)
-logger.info("Start creating new Sprint board for each team")
+#logger.debug(DOTTED_LINE)
+#logger.info("Start creating new Sprint board for each team")
 
 for team in TEAM_INFO.keys():
     infor = TEAM_INFO[team]
@@ -32,6 +32,7 @@ for team in TEAM_INFO.keys():
     if bid:
         # move done cards in last month board
         done_list_id, n_card = search_done_list(bid)
+        list_ids = get_list_ids(bid, BOARD_LISTS)
 
         if done_list_id and n_card > 0:
             archive_list_id = create_archive_list(bid, last_month=True)
@@ -41,7 +42,7 @@ for team in TEAM_INFO.keys():
         elif done_list_id and n_card <= 0:
             logger.error("No card in the done-list")
         else:
-            logger.error("No done-list in the board" )
+            logger.error("No done-list in the board")
 
         # create new board
         new_bid, new_board_name, existance = create_board(sprint_n, organ_name)
@@ -70,4 +71,4 @@ for team in TEAM_INFO.keys():
                 logger.error("No lists to move")
     else:
         logger.error("No prior board in " + organ_name)
-
+#
