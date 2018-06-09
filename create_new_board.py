@@ -71,4 +71,3 @@ for team in TEAM_INFO.keys():
                 logger.error("No lists to move")
     else:
         logger.error("No prior board in " + organ_name)
-#

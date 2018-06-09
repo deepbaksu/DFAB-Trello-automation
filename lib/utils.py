@@ -11,6 +11,7 @@ def get_tboard_id(organ_name, target_board_name):
     boards_jdata = json.loads(boards.text)
     for jd in boards_jdata:
         if jd['name'] == target_board_name:
+            print(jd)
             return jd['id']
     return None
 
@@ -79,11 +80,14 @@ def get_board_labels(bid):
 
     return result
 
-def create_board(n, organ_name):
+def create_board(n, organ_name, team_visible=True):
     url = "https://api.trello.com/1/boards/"
     new_q = QUERY.copy()
     new_q['name'] =  "Sprint" + str(n) + " for " + MONTH_NAME + "."
+    if team_visible:
+        new_q['permissionLevel'] = 'org'
     existance = get_tboard_id(organ_name, new_q['name'])
+
     if existance:
         return existance[0], new_q['name'], existance
 
@@ -91,6 +95,7 @@ def create_board(n, organ_name):
     new_q['defaultLists'] = "false"
     new_q['pos'] = "top"
     res = requests.request("POST", url, params=new_q)
+
     return json.loads(res.text)['id'], new_q['name'], existance
 
 def update_board_labels(new_bid, labels):
