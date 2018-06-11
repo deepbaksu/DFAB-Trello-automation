@@ -7,8 +7,8 @@ sys.path.insert(0, './lib')
 from utils import *
 from logger import logger
 
-#logger.debug(DOTTED_LINE)
-#logger.info("Start creating new Sprint board for each team")
+logger.debug(DOTTED_LINE)
+logger.info("Start creating new Sprint board for each team")
 
 for team in TEAM_INFO.keys():
     infor = TEAM_INFO[team]

@@ -11,7 +11,6 @@ def get_tboard_id(organ_name, target_board_name):
     boards_jdata = json.loads(boards.text)
     for jd in boards_jdata:
         if jd['name'] == target_board_name:
-            print(jd)
             return jd['id']
     return None
 
