@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import os
 
 ## test mode
-TEST = False
+TEST = True
 
 ## date
 TODAY = datetime.today()
@@ -23,6 +23,7 @@ TEAM_INFO = {
               }
 TARGET_LIST = '완료'
 BOARD_LISTS = ['아이디어', '오늘 할 일', '완료', '일시정지']
+
 if TEST:
     ADMIN_USER_NAME = 'minjikim59'
 else:
@@ -37,3 +38,4 @@ LOG_FORMAT = '[%(levelname)s | %(filename)s:%(lineno)s] %(asctime)s >> %(message
 LOGGER_NAME = 'dfabLogger'
 DOTTED_LINE = '================================================='
 
+TRELLO_API = "https://api.trello.com/1"

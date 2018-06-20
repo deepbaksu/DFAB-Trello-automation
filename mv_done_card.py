@@ -1,25 +1,24 @@
 #!/usr/bin/python3
 #_*_ coding: utf-8 _*_
 
-import sys
-sys.path.insert(0, './lib')
+from lib.logger import logger
+from lib import config
+from lib.utils import get_tboard_name, get_tboard_id, search_done_list, \
+                      create_archive_list, move_all_cards
 
-from utils import *
-from logger import logger
-
-logger.debug(DOTTED_LINE)
+logger.debug(config.DOTTED_LINE)
 logger.info("Start moving done-list cards to archive-list")
 
-for team in TEAM_INFO.keys():
-    if TEST:
+for team in config.TEAM_INFO:
+    if config.TEST:
         tboard_name = "Sprint1 for Mar-" # for TEST
     else:
         tboard_name = get_tboard_name(team)
 
-    if TEST:
+    if config.TEST:
         organ_name = "test93452024" # for TEST
     else:
-        organ_name = TEAM_INFO[team]['organ_name']
+        organ_name = config.TEAM_INFO[team]['organ_name']
 
     tboard_id = get_tboard_id(organ_name, tboard_name)
 
@@ -34,7 +33,7 @@ for team in TEAM_INFO.keys():
         elif done_list_id and n_card <= 0:
             logger.error("No card in the done-list")
         else:
-            logger.error("No done-list in the board" )
+            logger.error("No done-list in the board")
 
     else:
         logger.error("No " + tboard_name + " in your team(" + team + ")")
