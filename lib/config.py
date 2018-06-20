@@ -3,9 +3,6 @@
 from datetime import datetime, timedelta
 import os
 
-## test mode
-TEST = True
-
 ## date
 TODAY = datetime.today()
 YESTERDAY = TODAY - timedelta(1)

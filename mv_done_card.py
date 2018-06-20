@@ -13,17 +13,10 @@ LOGGER.info("Start moving done-list cards to archive-list")
 
 for team in config.TEAM_INFO:
     team_info = config.TEAM_INFO[team]
-    if config.TEST:
-        board_name = "Sprint1 for Mar-" # for TEST
-    else:
-        start_ym = team_info['start_ym']
-        sprint_n = compute_sprint_n(start_ym)
-        board_name = get_board_name(sprint_n)
-
-    if config.TEST:
-        organ_name = "test93452024" # for TEST
-    else:
-        organ_name = config.TEAM_INFO[team]['organ_name']
+    start_ym = team_info['start_ym']
+    sprint_n = compute_sprint_n(start_ym)
+    board_name = get_board_name(sprint_n)
+    organ_name = config.TEAM_INFO[team]['organ_name']
 
     bid = get_board_id(organ_name, board_name)
 

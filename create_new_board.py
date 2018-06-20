@@ -14,22 +14,11 @@ LOGGER.info("Start creating new Sprint board for each team")
 
 for team in config.TEAM_INFO:
     team_info = config.TEAM_INFO[team]
-
-    if config.TEST:
-        organ_name = "test93452024" # for TEST
-    else:
-        organ_name = team_info['organ_name']
-
+    organ_name = team_info['organ_name']
     start_ym = team_info['start_ym']
     sprint_n = compute_sprint_n(start_ym)
 
-    if config.TEST:
-        copy_board_name = "Sprint" + str(sprint_n-1) + " for " + "Apr" + "~" # for TEST
-        copy_board_name = "Sprint" + str(1) + " for " + "Mar" + "-" # for TEST
-        print(copy_board_name) # for TEST
-    else:
-        copy_board_name = get_board_name(sprint_n, last_month=True)
-
+    copy_board_name = get_board_name(sprint_n, last_month=True)
     bid = get_board_id(organ_name, copy_board_name)
 
     if bid:
