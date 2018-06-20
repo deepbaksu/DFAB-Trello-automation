@@ -1,26 +1,26 @@
-#!/usr/bin/python3
 #_*_ coding: utf-8 _*_
 
 import sys
-sys.path.insert(0, './lib')
-from logger import logger
+sys.path.append('./lib')
+from lib.logger import LOGGER
+from lib import config
+from lib.utils import compute_sprint_n, get_board_name, get_board_id, get_list_id, \
+                      get_the_number_of_card, create_list, move_all_cards, create_board, \
+                      get_labels_data, update_board_label, update_board_member, move_list, \
+                      get_members_data, get_archive_name
 
-import config
-from utils import compute_sprint_n, get_tboard_name, get_tboard_id, search_done_list, get_list_ids, create_archive_list, \
-                  move_all_cards, create_board, get_board_labels, update_board_labels, update_board_members, move_lists, get_members
+LOGGER.debug(config.DOTTED_LINE)
+LOGGER.info("Start creating new Sprint board for each team")
 
-logger.debug(config.DOTTED_LINE)
-logger.info("Start creating new Sprint board for each team")
-
-for team in config.TEAM_INFO.keys():
-    info = config.TEAM_INFO[team]
+for team in config.TEAM_INFO:
+    team_info = config.TEAM_INFO[team]
 
     if config.TEST:
         organ_name = "test93452024" # for TEST
     else:
-        organ_name = info['organ_name']
+        organ_name = team_info['organ_name']
 
-    start_ym = info['start_ym']
+    start_ym = team_info['start_ym']
     sprint_n = compute_sprint_n(start_ym)
 
     if config.TEST:
@@ -28,53 +28,65 @@ for team in config.TEAM_INFO.keys():
         copy_board_name = "Sprint" + str(1) + " for " + "Mar" + "-" # for TEST
         print(copy_board_name) # for TEST
     else:
-        copy_board_name = get_tboard_name(team, last_month=True)
+        copy_board_name = get_board_name(sprint_n, last_month=True)
 
-    bid = get_tboard_id(organ_name, copy_board_name)
+    bid = get_board_id(organ_name, copy_board_name)
 
     if bid:
         # move done cards in last month board
-        done_list_id, n_card = search_done_list(bid)
+        done_list_id = get_list_id(bid, config.TARGET_LIST)
 
-        if done_list_id and n_card > 0:
-            archive_list_id = create_archive_list(bid, last_month=True)
-            logger.info("Created archive-list(" + team + ") in " + copy_board_name)
-            move_all_cards(done_list_id, bid, archive_list_id)
-            logger.info("Moved all cards in done-list")
-        elif done_list_id and n_card <= 0:
-            logger.error("No card in done-list")
+        if done_list_id:
+            n_card = get_the_number_of_card(done_list_id)
+
+            if n_card > 0:
+                archive_list_name = get_archive_name(last_month=True)
+                archive_list_id, existance = create_list(bid, archive_list_name)
+                if existance:
+                    LOGGER.info("List(" + archive_list_name + ") is already in " + board_name)
+                else:
+                    LOGGER.info("Created archive-list(" + team + ") in " + copy_board_name)
+                move_all_cards(bid, done_list_id, archive_list_id)
+                LOGGER.info("Moved all cards in done-list")
+            else:
+                LOGGER.error("No card in done-list")
         else:
-            logger.error("No done-list in the board")
+            LOGGER.error("No done-list in the board")
 
         # create new board
-        new_bid, new_board_name, existance = create_board(sprint_n, organ_name)
+        new_board_name = get_board_name(sprint_n)
+        new_bid, existance = create_board(organ_name, new_board_name)
         if existance:
-            logger.info("New Sprint board(" + new_board_name + ") is already in " + organ_name)
+            LOGGER.info("Sprint board(" + new_board_name + ") is already in " + organ_name)
         else:
-            logger.info("Created new Sprint board(" + new_board_name + ") in " + organ_name)
+            LOGGER.info("Created new Sprint board(" + new_board_name + ") in " + organ_name)
 
         # update board labels
-        labels = get_board_labels(bid)
-        if labels:
-            update_board_labels(new_bid, labels)
-            logger.info("Updated labels")
-        else:
-            logger.error("No labels in the board")
+        labels = get_labels_data(bid)
+        for label in labels:
+            if 'name' in label:
+                update_board_label(new_bid, label['color'], label['name'])
+                LOGGER.info("Updated label(name: %s, color: %s)", label['name'], label['color'])
 
         # update board members
-        mem_ids, admin_id = get_members(bid)
-        if mem_ids:
-            update_board_members(new_bid, mem_ids, admin_id)
-            logger.info("Updated members")
-        else:
-            logger.error("No members in the board")
+        mem_list = get_members_data(bid)
+        for mem in mem_list:
+            if mem['username'] == config.ADMIN_USER_NAME:
+                mem_type = 'admin'
+            else:
+                mem_type = 'normal'
+
+            update_board_member(new_bid, mem['id'], mem_type)
+            LOGGER.info("Updated %s in board member", mem['username'])
+
 
         # move lists to new board
-        list_ids = get_list_ids(bid, config.BOARD_LISTS)
-        if list_ids:
-            move_lists(list_ids, new_bid)
-            logger.info("Moved lists")
-        else:
-            logger.error("No lists to move")
+        for list_name in reversed(config.BOARD_LISTS):
+            list_id = get_list_id(bid, list_name)
+            if list_id:
+                move_list(new_bid, list_id)
+                LOGGER.info("Moved %s list", list_name)
+            else:
+                LOGGER.error("No %s list", list_name)
     else:
-        logger.error("No prior board in " + organ_name)
+        LOGGER.error("No prior board in " + organ_name)

@@ -4,10 +4,10 @@ import logging
 import logging.handlers
 from config import LOG_FILENAME, LOG_FORMAT, LOGGER_NAME
 
-fomatter = logging.Formatter(LOG_FORMAT)
-filehandler = logging.FileHandler(LOG_FILENAME)
-filehandler.setFormatter(fomatter)
+DFAB_FORMAT = logging.Formatter(LOG_FORMAT)
+DFAB_FILEHANDLER = logging.FileHandler(LOG_FILENAME)
+DFAB_FILEHANDLER.setFormatter(DFAB_FORMAT)
 
-logger = logging.getLogger(LOGGER_NAME)
-logger.addHandler(filehandler)
-logger.setLevel(logging.DEBUG)
+LOGGER = logging.getLogger(LOGGER_NAME)
+LOGGER.addHandler(DFAB_FILEHANDLER)
+LOGGER.setLevel(logging.DEBUG)

@@ -1,39 +1,49 @@
 #!/usr/bin/python3
 #_*_ coding: utf-8 _*_
 
-from lib.logger import logger
+import sys
+sys.path.append('./lib')
+from lib.logger import LOGGER
 from lib import config
-from lib.utils import get_tboard_name, get_tboard_id, search_done_list, \
-                      create_archive_list, move_all_cards
+from lib.utils import get_board_name, get_board_id, get_list_id, get_the_number_of_card, \
+                      create_list, get_archive_name, move_all_cards, compute_sprint_n
 
-logger.debug(config.DOTTED_LINE)
-logger.info("Start moving done-list cards to archive-list")
+LOGGER.debug(config.DOTTED_LINE)
+LOGGER.info("Start moving done-list cards to archive-list")
 
 for team in config.TEAM_INFO:
+    team_info = config.TEAM_INFO[team]
     if config.TEST:
-        tboard_name = "Sprint1 for Mar-" # for TEST
+        board_name = "Sprint1 for Mar-" # for TEST
     else:
-        tboard_name = get_tboard_name(team)
+        start_ym = team_info['start_ym']
+        sprint_n = compute_sprint_n(start_ym)
+        board_name = get_board_name(sprint_n)
 
     if config.TEST:
         organ_name = "test93452024" # for TEST
     else:
         organ_name = config.TEAM_INFO[team]['organ_name']
 
-    tboard_id = get_tboard_id(organ_name, tboard_name)
+    bid = get_board_id(organ_name, board_name)
 
-    if tboard_id:
-        done_list_id, n_card = search_done_list(tboard_id)
+    if bid:
+        done_list_id = get_list_id(bid, config.TARGET_LIST)
+        n_card = get_the_number_of_card(done_list_id)
 
         if done_list_id and n_card > 0:
-            archive_list_id = create_archive_list(tboard_id)
-            logger.info("Created archive-list(" + team + ")")
-            move_all_cards(done_list_id, tboard_id, archive_list_id)
-            logger.info("Moved all cards in done-list")
+            archive_list_name = get_archive_name()
+            archive_list_id, existance = create_list(bid, archive_list_name)
+            if existance:
+                LOGGER.info("List(" + archive_list_name + ") is already in " + board_name)
+            else:
+                LOGGER.info("Created archive-list(" + team + ")")
+            move_all_cards(bid, done_list_id, archive_list_id)
+            LOGGER.info("Moved all cards in done-list")
         elif done_list_id and n_card <= 0:
-            logger.error("No card in the done-list")
+            LOGGER.error("No card in the done-list")
         else:
-            logger.error("No done-list in the board")
+            LOGGER.error("No done-list in the board")
 
     else:
-        logger.error("No " + tboard_name + " in your team(" + team + ")")
+        LOGGER.error("No " + board_name + " in your team(" + team + ")")

@@ -1,158 +1,251 @@
 #_*_ coding: utf-8 _*_
 
-import requests
-import json
 import os
+import json
+import requests
 from query import QUERY
 import config
 
-def get_tboard_id(organ_name, target_board_name):
+def get_board_id(organ_name, target_board_name):
+    """Get target board id in given organization.
+
+    Args:
+        organ_name (str): organization name.
+        target_board_name (str): board name.
+
+    Returns:
+        str: board id if it exists, else None.
+    """
     url = os.path.join(config.TRELLO_API, 'organization', organ_name, 'boards')
     boards = requests.request("GET", url, params=QUERY)
     boards_jdata = json.loads(boards.text)
 
-    for jd in boards_jdata:
-        if jd['name'] == target_board_name:
-            return jd['id']
+    for data in boards_jdata:
+        if data['name'] == target_board_name:
+            return data['id']
 
     return None
 
-def search_done_list(bid):
+
+def get_list_id(bid, target_list_name):
+    """Get list id in given board id.
+
+    Args:
+        bid (str): board id.
+        target_list_name (str): list name.
+
+    Returns:
+        str: done list id if it exists, else None.
+    """
     url = os.path.join(config.TRELLO_API, 'board', bid, 'lists')
     lists = requests.request("GET", url, params=QUERY)
 
-    for l in json.loads(lists.text):
-        if l['name'].encode() == config.TARGET_LIST.encode():
-            url = os.path.join(config.TRELLO_API, 'list', l['id'], 'cards?fields=all')
-            cards_in_list = requests.request("GET", url, params=QUERY)
-            return l['id'], len(json.loads(cards_in_list.text))
+    for list_data in json.loads(lists.text):
+        if list_data['name'].encode() == target_list_name.encode():
+            return list_data['id']
 
-    return None, 0
-        
-def create_archive_list(bid, last_month=False):
-    url = os.path.join(config.TRELLO_API, 'board', bid, 'lists')
-    new_q = QUERY.copy()
+    return None
 
-    if last_month:
-        m_name = config.LAST_MONTH_NAME
-    else:
-        m_name = config.MONTH_NAME
 
-    new_q['name'] = "아카이브(~ " + str(config.THE_DAY_BEFORE) + " " + m_name + ".)"
-    new_q['pos'] = "bottom"
-    existance = get_list_ids(bid, [new_q['name']])
+def get_the_number_of_card(lid):
+    """Get the number of cards in given list id.
 
-    if not existance:
-        res = requests.request("POST", url, params=new_q)
-        archive_list = json.loads(res.text)
-        return archive_list['id']
-    else:
-        return existance[0]
+    Args:
+        lid (str): list id.
 
-def move_all_cards(did, id_board, id_list):
-    url = os.path.join(config.TRELLO_API, 'lists', did, 'moveAllCards')
-    new_q = QUERY.copy()
-    new_q['idBoard'] = id_board
-    new_q['idList'] = id_list
-    res = requests.request("POST", url, params=new_q)
+    Returns:
+        int: the number of done cards if they exist, else 0.
+    """
+    url = os.path.join(config.TRELLO_API, 'list', lid, 'cards?fields=all')
+    cards_in_list = requests.request("GET", url, params=QUERY)
+    return len(json.loads(cards_in_list.text))
 
-def get_board_labels(bid):
-    result = []
+
+def get_labels_data(bid):
+    """Get labels in given board id.
+
+    Args:
+        bid (str): board id.
+
+    Returns:
+        list: labels data.
+    """
     url = os.path.join(config.TRELLO_API, 'boards', bid, 'labels')
     res = requests.request("GET", url, params=QUERY)
     labels = json.loads(res.text)
 
-    for l in labels:
-        dic = {}
-        dic['name'] = l['name']
-        dic['color'] = l['color']
-        result.append(dic)
+    return labels
 
-    return result
 
-def create_board(n, organ_name, team_visible=True):
+def create_list(bid, list_name, list_pos="bottom"):
+    """Create list in given board id.
+
+    Args:
+        bid (str): board id.
+        list_name (str): list name.
+        list_pos (str): list position in board(default "bottom").
+
+    Returns:
+        str: created list id if it does not exist, else existing list id.
+        bool: True for existing list, False new list.
+    """
+    existing_id = get_list_id(bid, list_name)
+    if existing_id:
+        return existing_id, True
+
+    url = os.path.join(config.TRELLO_API, 'board', bid, 'lists')
+    new_q = QUERY.copy()
+    new_q['name'] = list_name
+    new_q['pos'] = list_pos
+    res = requests.request("POST", url, params=new_q)
+    archive_list = json.loads(res.text)
+
+    return archive_list['id'], False
+
+
+def create_board(organ_name, board_name, default_list="false", board_pos="top", prefs_perm="org"):
+    """Create board in given organization.
+
+    Args:
+        organ_name (str): organization name.
+        board_name (str): board name.
+        default_list (str): "false" for no default list, "true" for default list.
+        board_pos (str): board position in organization(default "top").
+        prefs_perm (str): prefs_permissionLevel(default "org").
+
+    Returns:
+        str: created board id if it does not exist, else existing board id.
+        bool: True for existing board, False new board.
+    """
+    existing_id = get_board_id(organ_name, board_name)
+    if existing_id:
+        return existing_id, True
+
     url = os.path.join(config.TRELLO_API, 'boards')
     new_q = QUERY.copy()
-    new_q['name'] =  "Sprint" + str(n) + " for " + config.MONTH_NAME + "."
-    existance_id = get_tboard_id(organ_name, new_q['name'])
-
-    if existance_id:
-        return existance_id, new_q['name'], True
-
-    if team_visible:
-        new_q['prefs_permissionLevel'] = 'org'
-
+    new_q['name'] = board_name
     new_q['idOrganization'] = organ_name
-    new_q['defaultLists'] = "false"
-    new_q['pos'] = "top"
+    new_q['defaultLists'] = default_list
+    new_q['pos'] = board_pos
+    new_q['prefs_permissionLevel'] = prefs_perm
     res = requests.request("POST", url, params=new_q)
 
-    return json.loads(res.text)['id'], new_q['name'], False
+    return json.loads(res.text)['id'], False
 
-def update_board_labels(new_bid, labels):
-    for l in labels:
-        label_value = 'labelNames/' + l['color'] + '?value=' + l['name']
-        url = os.path.join(config.TRELLO_API, 'boards', new_bid, label_value)
-        res = requests.request("PUT", url, params=QUERY)
 
-def get_list_ids(bid, board_lists):
-    list_ids = []
-    url = os.path.join(config.TRELLO_API, 'boards', bid, 'lists')
-    board_lists = [ board_list.encode() for board_list in board_lists ]
-    res = requests.request("GET", url, params=QUERY)
-    blists = json.loads(res.text)
-    
-    for bl in blists:
-        if bl['name'].encode() in board_lists:
-            list_ids.append(bl['id'])
+def move_all_cards(bid, from_lid, to_lid):
+    """Move all cards from prior list to new list in given board id.
 
-    return list_ids
-    
-def move_lists(list_ids, new_bid):
-    list_ids.reverse()
-    for lid in list_ids:
-        url = os.path.join(config.TRELLO_API, 'lists', lid, 'idBoard')
-        new_q = QUERY.copy()
-        new_q['value'] = new_bid
-        res = requests.request("PUT", url, params=new_q)
-
-def get_members(bid):
-    mem_ids, admin_id = [], None
-    url = os.path.join(config.TRELLO_API, 'boards', bid, 'members')
-    res = requests.request("GET", url, params=QUERY)
-    memlists = json.loads(res.text)
-
-    for mem in memlists:
-        mem_ids.append(mem['id'])
-        if mem['username'] == config.ADMIN_USER_NAME:
-            admin_id = mem['id']
-
-    return mem_ids, admin_id
-
-def update_board_members(bid, mem_ids, admin_id):
+    Args:
+        bid (str): board id.
+        from_lid (str): prior list id.
+        to_lid (str): new list id.
+    """
+    url = os.path.join(config.TRELLO_API, 'lists', from_lid, 'moveAllCards')
     new_q = QUERY.copy()
-    for mid in mem_ids:
-        if admin_id and mid == admin_id:
-            new_q['type'] = 'admin'
-        else:
-            new_q['type'] = 'normal'
-        url = os.path.join(config.TRELLO_API, 'boards', bid, 'members', mid)
-        res = requests.request("PUT", url, params=new_q)
+    new_q['idBoard'] = bid
+    new_q['idList'] = to_lid
+    requests.request("POST", url, params=new_q)
+
+
+def update_board_label(bid, label_color, label_name):
+    """Update board label name of color in given board.
+
+    Args:
+        bid (str): board id.
+        label_color (str): label color.
+        label_name (str): label name.
+    """
+    label_value = 'labelNames/' + label_color + '?value=' + label_name
+    url = os.path.join(config.TRELLO_API, 'boards', bid, label_value)
+    requests.request("PUT", url, params=QUERY)
+
+
+def move_list(bid, lid):
+    """Move list to another board.
+
+    Args:
+        bid (str): board id.
+        lid (str): label id.
+    """
+    url = os.path.join(config.TRELLO_API, 'lists', lid, 'idBoard')
+    new_q = QUERY.copy()
+    new_q['value'] = bid
+    requests.request("PUT", url, params=new_q)
+
+
+def get_members_data(bid):
+    """Get members in given board id.
+
+    Args:
+        bid (str): board id.
+
+    Returns:
+        list: members data.
+    """
+    url = os.path.join(config.TRELLO_API, 'boards', bid, 'members')
+    mem_list = requests.request("GET", url, params=QUERY)
+    return json.loads(mem_list.text)
+
+
+def update_board_member(bid, mid, mem_type):
+    """Update member in given board id.
+
+    Args:
+        bid (str): board id.
+        mid (str): member id
+        mem_type (str): member type.
+    """
+    url = os.path.join(config.TRELLO_API, 'boards', bid, 'members', mid)
+    new_q = QUERY.copy()
+    new_q['type'] = mem_type
+    requests.request("PUT", url, params=new_q)
 
 def compute_sprint_n(start_ym):
-    sy, sm = start_ym.split('-')    
-    ty, tm = config.TODAY.strftime('%Y-%m').split('-')
-    n = (int(ty) - int(sy)) * 12 + (int(tm) - int(sm)) + 1
-    return n
+    """Compute sprint number.
 
-def get_tboard_name(team, last_month=False):
-    info = config.TEAM_INFO[team]
-    n = compute_sprint_n(info['start_ym'])
+    Args:
+        start_ym (str): "year-month" of starting board.
 
+    Returns:
+        str: sprint_n.
+    """
+    start_y, start_m = start_ym.split('-')
+    today_y, today_m = config.TODAY.strftime('%Y-%m').split('-')
+    sprint_n = (int(today_y) - int(start_y)) * 12 + (int(today_m) - int(start_m)) + 1
+    return sprint_n
+
+def get_board_name(sprint_n, last_month=False):
+    """Get board name.
+
+    Args:
+        sprint_n (int): sprint number.
+        last_month (bool): False for this month board, True for last month board.
+
+    Returns:
+        str: board name.
+    """
     if last_month:
-        board_name = "Sprint" + str(n-1) + " for " + config.LAST_MONTH_NAME + "." 
+        num = sprint_n - 1
+        month = config.LAST_MONTH_NAME
     else:
-        board_name = "Sprint" + str(n) + " for " + config.MONTH_NAME + "." 
+        num = sprint_n
+        month = config.MONTH_NAME
 
-    return board_name
-        
+    return "Sprint" + str(num) + " for " + month + "."
+
+
+def get_archive_name(last_month=False):
+    """Get list name for achive
+
+    Args:
+        last_month (bool): False for this month board, True for last month board.
+
+    Returns:
+        str: archive list name
+    """
+    if last_month:
+        m_name = config.LAST_MONTH_NAME
+    else:
+        m_name = config.MONTH_NAME
+    return "아카이브(~ " + str(config.THE_DAY_BEFORE) + " " + m_name + ".)"
