@@ -21,16 +21,10 @@ TEAM_INFO = {
 TARGET_LIST = '완료'
 BOARD_LISTS = ['아이디어', '오늘 할 일', '완료', '일시정지']
 
-if TEST:
-    ADMIN_USER_NAME = 'minjikim59'
-else:
-    ADMIN_USER_NAME = 'jinwoopark8'
+ADMIN_USER_NAME = 'jinwoopark8'
 
 ## logger
-if TEST:
-    LOG_FILENAME = os.getcwd() + '/dfabTrelloTest.log'
-else:
-    LOG_FILENAME = os.getcwd() + '/dfabTrello.log'
+LOG_FILENAME = os.getcwd() + '/dfabTrello.log'
 LOG_FORMAT = '[%(levelname)s | %(filename)s:%(lineno)s] %(asctime)s >> %(message)s'
 LOGGER_NAME = 'dfabLogger'
 DOTTED_LINE = '================================================='
