@@ -1,5 +1,7 @@
 #_*_ coding: utf-8 _*_
 
+"""Move all done cards to archive list in prior sprint board.
+   Create new sprint board and move necessary lists from prior board to new board"""
 import sys
 sys.path.append('./lib')
 from lib.logger import LOGGER

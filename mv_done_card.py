@@ -1,9 +1,10 @@
 #_*_ coding: utf-8 _*_
 
+"""Move all cards from done list to archive list"""
 import sys
 sys.path.append('./lib')
-from lib.logger import LOGGER
 from lib import config
+from lib.logger import LOGGER
 from lib.utils import get_board_name, get_board_id, get_list_id, get_the_number_of_card, \
                       create_list, get_archive_name, move_all_cards, compute_sprint_n
 

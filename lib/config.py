@@ -1,5 +1,6 @@
 #_*_ coding: utf-8 _*_
 
+"""Configuration"""
 from datetime import datetime, timedelta
 import os
 
