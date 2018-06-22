@@ -6,3 +6,4 @@ query.py
 dfabTrello.log
 dfabTrelloTest.log
 .gitignore
+configtest.py

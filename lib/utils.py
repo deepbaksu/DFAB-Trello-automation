@@ -4,7 +4,7 @@
 import os
 import json
 import requests
-import config
+from config import TRELLO_API, TODAY, LAST_MONTH_NAME, MONTH_NAME, THE_DAY_BEFORE
 from query import QUERY
 
 def get_board_id(organ_name, target_board_name):
@@ -17,7 +17,7 @@ def get_board_id(organ_name, target_board_name):
     Returns:
         str: board id if it exists, else None.
     """
-    url = os.path.join(config.TRELLO_API, 'organization', organ_name, 'boards')
+    url = os.path.join(TRELLO_API, 'organization', organ_name, 'boards')
     boards = requests.request("GET", url, params=QUERY)
     boards_jdata = json.loads(boards.text)
 
@@ -38,7 +38,7 @@ def get_list_id(bid, target_list_name):
     Returns:
         str: done list id if it exists, else None.
     """
-    url = os.path.join(config.TRELLO_API, 'board', bid, 'lists')
+    url = os.path.join(TRELLO_API, 'board', bid, 'lists')
     lists = requests.request("GET", url, params=QUERY)
 
     for list_data in json.loads(lists.text):
@@ -57,7 +57,7 @@ def get_the_number_of_card(lid):
     Returns:
         int: the number of done cards if they exist, else 0.
     """
-    url = os.path.join(config.TRELLO_API, 'list', lid, 'cards?fields=all')
+    url = os.path.join(TRELLO_API, 'list', lid, 'cards?fields=all')
     cards_in_list = requests.request("GET", url, params=QUERY)
     return len(json.loads(cards_in_list.text))
 
@@ -71,7 +71,7 @@ def get_labels_data(bid):
     Returns:
         list: labels data.
     """
-    url = os.path.join(config.TRELLO_API, 'boards', bid, 'labels')
+    url = os.path.join(TRELLO_API, 'boards', bid, 'labels')
     res = requests.request("GET", url, params=QUERY)
     labels = json.loads(res.text)
 
@@ -94,7 +94,7 @@ def create_list(bid, list_name, list_pos="bottom"):
     if existing_id:
         return existing_id, True
 
-    url = os.path.join(config.TRELLO_API, 'board', bid, 'lists')
+    url = os.path.join(TRELLO_API, 'board', bid, 'lists')
     new_q = QUERY.copy()
     new_q['name'] = list_name
     new_q['pos'] = list_pos
@@ -122,7 +122,7 @@ def create_board(organ_name, board_name, default_list="false", board_pos="top", 
     if existing_id:
         return existing_id, True
 
-    url = os.path.join(config.TRELLO_API, 'boards')
+    url = os.path.join(TRELLO_API, 'boards')
     new_q = QUERY.copy()
     new_q['name'] = board_name
     new_q['idOrganization'] = organ_name
@@ -142,7 +142,7 @@ def move_all_cards(bid, from_lid, to_lid):
         from_lid (str): prior list id.
         to_lid (str): new list id.
     """
-    url = os.path.join(config.TRELLO_API, 'lists', from_lid, 'moveAllCards')
+    url = os.path.join(TRELLO_API, 'lists', from_lid, 'moveAllCards')
     new_q = QUERY.copy()
     new_q['idBoard'] = bid
     new_q['idList'] = to_lid
@@ -158,7 +158,7 @@ def update_board_label(bid, label_color, label_name):
         label_name (str): label name.
     """
     label_value = 'labelNames/' + label_color + '?value=' + label_name
-    url = os.path.join(config.TRELLO_API, 'boards', bid, label_value)
+    url = os.path.join(TRELLO_API, 'boards', bid, label_value)
     requests.request("PUT", url, params=QUERY)
 
 
@@ -169,7 +169,7 @@ def move_list(bid, lid):
         bid (str): board id.
         lid (str): label id.
     """
-    url = os.path.join(config.TRELLO_API, 'lists', lid, 'idBoard')
+    url = os.path.join(TRELLO_API, 'lists', lid, 'idBoard')
     new_q = QUERY.copy()
     new_q['value'] = bid
     requests.request("PUT", url, params=new_q)
@@ -184,7 +184,7 @@ def get_members_data(bid):
     Returns:
         list: members data.
     """
-    url = os.path.join(config.TRELLO_API, 'boards', bid, 'members')
+    url = os.path.join(TRELLO_API, 'boards', bid, 'members')
     mem_list = requests.request("GET", url, params=QUERY)
     return json.loads(mem_list.text)
 
@@ -197,7 +197,7 @@ def update_board_member(bid, mid, mem_type):
         mid (str): member id
         mem_type (str): member type.
     """
-    url = os.path.join(config.TRELLO_API, 'boards', bid, 'members', mid)
+    url = os.path.join(TRELLO_API, 'boards', bid, 'members', mid)
     new_q = QUERY.copy()
     new_q['type'] = mem_type
     requests.request("PUT", url, params=new_q)
@@ -213,7 +213,7 @@ def compute_sprint_n(start_ym):
         str: sprint_n.
     """
     start_y, start_m = start_ym.split('-')
-    today_y, today_m = config.TODAY.strftime('%Y-%m').split('-')
+    today_y, today_m = TODAY.strftime('%Y-%m').split('-')
     sprint_n = (int(today_y) - int(start_y)) * 12 + (int(today_m) - int(start_m)) + 1
     return sprint_n
 
@@ -230,10 +230,10 @@ def get_board_name(sprint_n, last_month=False):
     """
     if last_month:
         num = sprint_n - 1
-        month = config.LAST_MONTH_NAME
+        month = LAST_MONTH_NAME
     else:
         num = sprint_n
-        month = config.MONTH_NAME
+        month = MONTH_NAME
 
     return "Sprint" + str(num) + " for " + month + "."
 
@@ -248,7 +248,7 @@ def get_archive_name(last_month=False):
         str: archive list name
     """
     if last_month:
-        m_name = config.LAST_MONTH_NAME
+        m_name = LAST_MONTH_NAME
     else:
-        m_name = config.MONTH_NAME
-    return "아카이브(~ " + str(config.THE_DAY_BEFORE) + " " + m_name + ".)"
+        m_name = MONTH_NAME
+    return "아카이브(~ " + str(THE_DAY_BEFORE) + " " + m_name + ".)"

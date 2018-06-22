@@ -5,17 +5,17 @@
 import sys
 sys.path.append('./lib')
 from lib.logger import LOGGER
-from lib import config
+from lib.config import DOTTED_LINE, TEAM_INFO, TARGET_LIST, ADMIN_USER_NAME, BOARD_LISTS
 from lib.utils import compute_sprint_n, get_board_name, get_board_id, get_list_id, \
                       get_the_number_of_card, create_list, move_all_cards, create_board, \
                       get_labels_data, update_board_label, update_board_member, move_list, \
                       get_members_data, get_archive_name
 
-LOGGER.debug(config.DOTTED_LINE)
+LOGGER.debug(DOTTED_LINE)
 LOGGER.info("Start creating new Sprint board for each team")
 
-for team in config.TEAM_INFO:
-    team_info = config.TEAM_INFO[team]
+for team in TEAM_INFO:
+    team_info = TEAM_INFO[team]
     organ_name = team_info['organ_name']
     start_ym = team_info['start_ym']
     sprint_n = compute_sprint_n(start_ym)
@@ -25,7 +25,7 @@ for team in config.TEAM_INFO:
 
     if bid:
         # move done cards in last month board
-        done_list_id = get_list_id(bid, config.TARGET_LIST)
+        done_list_id = get_list_id(bid, TARGET_LIST)
 
         if done_list_id:
             n_card = get_the_number_of_card(done_list_id)
@@ -62,7 +62,7 @@ for team in config.TEAM_INFO:
         # update board members
         mem_list = get_members_data(bid)
         for mem in mem_list:
-            if mem['username'] == config.ADMIN_USER_NAME:
+            if mem['username'] == ADMIN_USER_NAME:
                 mem_type = 'admin'
             else:
                 mem_type = 'normal'
@@ -72,7 +72,7 @@ for team in config.TEAM_INFO:
 
 
         # move lists to new board
-        for list_name in reversed(config.BOARD_LISTS):
+        for list_name in reversed(BOARD_LISTS):
             list_id = get_list_id(bid, list_name)
             if list_id:
                 move_list(new_bid, list_id)

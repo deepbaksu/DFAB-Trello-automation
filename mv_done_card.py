@@ -3,16 +3,16 @@
 """Move all cards from done list to archive list"""
 import sys
 sys.path.append('./lib')
-from lib import config
+from lib.config import DOTTED_LINE, TEAM_INFO, TARGET_LIST
 from lib.logger import LOGGER
 from lib.utils import get_board_name, get_board_id, get_list_id, get_the_number_of_card, \
                       create_list, get_archive_name, move_all_cards, compute_sprint_n
 
-LOGGER.debug(config.DOTTED_LINE)
+LOGGER.debug(DOTTED_LINE)
 LOGGER.info("Start moving done-list cards to archive-list")
 
-for team in config.TEAM_INFO:
-    team_info = config.TEAM_INFO[team]
+for team in TEAM_INFO:
+    team_info = TEAM_INFO[team]
     start_ym = team_info['start_ym']
     organ_name = team_info['organ_name']
     sprint_n = compute_sprint_n(start_ym)
@@ -20,7 +20,7 @@ for team in config.TEAM_INFO:
     bid = get_board_id(organ_name, board_name)
 
     if bid:
-        done_list_id = get_list_id(bid, config.TARGET_LIST)
+        done_list_id = get_list_id(bid, TARGET_LIST)
         n_card = get_the_number_of_card(done_list_id)
 
         if done_list_id and n_card > 0:
