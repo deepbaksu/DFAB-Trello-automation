@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 #_*_ coding: utf-8 _*_
 
 import sys
@@ -14,10 +13,9 @@ LOGGER.info("Start moving done-list cards to archive-list")
 for team in config.TEAM_INFO:
     team_info = config.TEAM_INFO[team]
     start_ym = team_info['start_ym']
+    organ_name = team_info['organ_name']
     sprint_n = compute_sprint_n(start_ym)
     board_name = get_board_name(sprint_n)
-    organ_name = config.TEAM_INFO[team]['organ_name']
-
     bid = get_board_id(organ_name, board_name)
 
     if bid:

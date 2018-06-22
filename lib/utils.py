@@ -3,8 +3,8 @@
 import os
 import json
 import requests
-from query import QUERY
 import config
+from query import QUERY
 
 def get_board_id(organ_name, target_board_name):
     """Get target board id in given organization.
@@ -201,6 +201,7 @@ def update_board_member(bid, mid, mem_type):
     new_q['type'] = mem_type
     requests.request("PUT", url, params=new_q)
 
+
 def compute_sprint_n(start_ym):
     """Compute sprint number.
 
@@ -214,6 +215,7 @@ def compute_sprint_n(start_ym):
     today_y, today_m = config.TODAY.strftime('%Y-%m').split('-')
     sprint_n = (int(today_y) - int(start_y)) * 12 + (int(today_m) - int(start_m)) + 1
     return sprint_n
+
 
 def get_board_name(sprint_n, last_month=False):
     """Get board name.
@@ -236,7 +238,7 @@ def get_board_name(sprint_n, last_month=False):
 
 
 def get_archive_name(last_month=False):
-    """Get list name for achive
+    """Get list name for archive
 
     Args:
         last_month (bool): False for this month board, True for last month board.

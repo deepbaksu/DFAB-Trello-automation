@@ -2,12 +2,12 @@
 
 import logging
 import logging.handlers
-from config import LOG_FILENAME, LOG_FORMAT, LOGGER_NAME
+import config
 
-DFAB_FORMAT = logging.Formatter(LOG_FORMAT)
-DFAB_FILEHANDLER = logging.FileHandler(LOG_FILENAME)
+DFAB_FORMAT = logging.Formatter(config.LOG_FORMAT)
+DFAB_FILEHANDLER = logging.FileHandler(config.LOG_FILENAME)
 DFAB_FILEHANDLER.setFormatter(DFAB_FORMAT)
 
-LOGGER = logging.getLogger(LOGGER_NAME)
+LOGGER = logging.getLogger(config.LOGGER_NAME)
 LOGGER.addHandler(DFAB_FILEHANDLER)
 LOGGER.setLevel(logging.DEBUG)

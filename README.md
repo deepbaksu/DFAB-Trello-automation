@@ -32,4 +32,4 @@ QUERY = { "key" : "<your key>",
 3. Logger in `logger.py` is for logging.
 
 ## Distribution
-- AWS(t2.micro, Ubuntu)
+- AWS(t2.micro, Amazon Linux)
