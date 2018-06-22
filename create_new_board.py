@@ -20,8 +20,8 @@ for team in TEAM_INFO:
     start_ym = team_info['start_ym']
     sprint_n = compute_sprint_n(start_ym)
 
-    copy_board_name = get_board_name(sprint_n, last_month=True)
-    bid = get_board_id(organ_name, copy_board_name)
+    board_name = get_board_name(sprint_n, last_month=True)
+    bid = get_board_id(organ_name, board_name)
 
     if bid:
         # move done cards in last month board
@@ -36,7 +36,7 @@ for team in TEAM_INFO:
                 if existance:
                     LOGGER.info("List(" + archive_list_name + ") is already in " + board_name)
                 else:
-                    LOGGER.info("Created archive-list(" + team + ") in " + copy_board_name)
+                    LOGGER.info("Created archive-list(" + team + ") in " + board_name)
                 move_all_cards(bid, done_list_id, archive_list_id)
                 LOGGER.info("Moved all cards in done-list")
             else:
