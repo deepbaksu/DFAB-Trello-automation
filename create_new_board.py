@@ -5,7 +5,7 @@
 import sys
 sys.path.append('./lib')
 from lib.logger import LOGGER
-from lib.config import DOTTED_LINE, TEAM_INFO, TARGET_LIST, ADMIN_USER_NAME, BOARD_LISTS
+from lib.config import DOTTED_LINE, TEAM_INFO, DONE_LIST_NAME, ADMIN_USER_NAME, BOARD_LISTS
 from lib.utils import compute_sprint_n, get_board_name, get_board_id, get_list_id, \
                       get_the_number_of_card, create_list, move_all_cards, create_board, \
                       get_labels_data, update_board_label, update_board_member, move_list, \
@@ -25,7 +25,7 @@ for team in TEAM_INFO:
 
     if bid:
         # move done cards in last month board
-        done_list_id = get_list_id(bid, TARGET_LIST)
+        done_list_id = get_list_id(bid, DONE_LIST_NAME)
 
         if done_list_id:
             n_card = get_the_number_of_card(done_list_id)

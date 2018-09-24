@@ -1,8 +1,8 @@
 #_*_ coding: utf-8 _*_
 
 """Configuration"""
-from datetime import datetime, timedelta
 import os
+from datetime import datetime, timedelta
 
 ## date
 TODAY = datetime.today()
@@ -19,7 +19,7 @@ TEAM_INFO = {
     'bravo' : {'start_ym' : '2018-03',
                'organ_name' : 'dfabteambravo'}
 }
-TARGET_LIST = '완료'
+DONE_LIST_NAME = '완료'
 BOARD_LISTS = ['아이디어', '오늘 할 일', '완료', '일시정지']
 
 ADMIN_USER_NAME = 'jinwoopark8'
@@ -30,4 +30,4 @@ LOG_FORMAT = '[%(levelname)s | %(filename)s:%(lineno)s] %(asctime)s >> %(message
 LOGGER_NAME = 'dfabLogger'
 DOTTED_LINE = '================================================='
 
-TRELLO_API = "https://api.trello.com/1"
+TRELLO_API_URL = "https://api.trello.com/1"

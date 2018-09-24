@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+
 sys.path.append('./')
 import unittest
 import mock
@@ -8,6 +9,7 @@ import json
 from service import TrelloResourceService
 from requests.exceptions import HTTPError
 from common.exceptions import DuplicatedValueError
+
 
 class TestTrelloResourceService(unittest.TestCase):
     def setUp(self):
@@ -265,6 +267,7 @@ class TestTrelloResourceService(unittest.TestCase):
 
     def _update_test_params(self, params_data):
         self.params.update(params_data)
+
 
 if __name__ == '__main__':
     unittest.main()
