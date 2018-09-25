@@ -17,6 +17,9 @@ class TrelloResourceService:
     def get_list_id(self, board_id, list_name):
         return self._get_id(self._list_url(board_id), list_name)
 
+    def get_lists_ids(self, board_id, lists):
+        return self._get_ids(self._list_url(board_id), lists)
+
     def get_board_labels(self, board_id):
         return self._request_to_get(self._labels_url(board_id), self.__params)
 
@@ -61,6 +64,7 @@ class TrelloResourceService:
         params = self._update_params({'value': board_id})
         self._request_to_put(self._move_list_url(list_id), params)
 
+    # Todo: Remove duplication
     def _get_id(self, url, target):
         resp_data = self._request_to_get(url, self.__params)
         data_ids = [data['id'] for data in resp_data if data['name'] == target]
@@ -70,6 +74,16 @@ class TrelloResourceService:
         if len(data_ids) > 1:
             raise DuplicatedValueError('{} has more than two id.'.format(target))
         None
+
+    # Todo
+    def _get_ids(self, url, targets):
+        if not isinstance(targets, list):
+            raise TypeError('Target resource was not list type')
+        if not targets:
+            raise ValueError('Empty target resource was requested')
+        resp_data = self._request_to_get(url, self.__params)
+        targets_resp_data = list(filter(lambda x: x['name'] in targets, resp_data))
+        return [data['id'] for data in targets_resp_data]
 
     def _update_params(self, params_data={}):
         params = self.__params.copy()
