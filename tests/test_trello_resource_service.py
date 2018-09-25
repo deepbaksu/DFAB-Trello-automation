@@ -75,6 +75,25 @@ class TestTrelloResourceService(unittest.TestCase):
         mock_req.assert_called_with('{}/boards/{}/lists'.format(self.url, self.board_id), params=self.params)
 
     @mock.patch('requests.get')
+    def test_get_lists_ids(self, mock_req):
+        resp_data = [{'name': self.list_name + '1', 'id': 'anotherListId'}, {'name': self.list_name, 'id': 'listId'}]
+        lists_name = [rd['name'] for rd in resp_data]
+        lists_id = [rd['id'] for rd in resp_data]
+        self._mock_request(mock_req=mock_req, resp_data=resp_data)
+        self.assertEqual(self.service.get_lists_ids(self.board_id, lists_name), lists_id)
+        mock_req.assert_called_with('{}/boards/{}/lists'.format(self.url, self.board_id), params=self.params)
+
+    @mock.patch('requests.get')
+    def test_failed_get_wrong_lists_type(self, mock_req):
+        self._mock_request(mock_req=mock_req, resp_data=[])
+        self.assertRaises(TypeError, self.service.get_lists_ids, self.board_id, '')
+
+    @mock.patch('requests.get')
+    def test_failed_get_empty_lists_ids(self, mock_req):
+        self._mock_request(mock_req=mock_req, resp_data=[])
+        self.assertRaises(ValueError, self.service.get_lists_ids, self.board_id, [])
+
+    @mock.patch('requests.get')
     def test_get_board_labels(self, mock_req):
         resp_data = [{'name': 'greenLabel', 'color': 'green'}, {'name': 'yellowLabel', 'color': 'yellow'}]
         self._mock_request(mock_req=mock_req, resp_data=resp_data)
