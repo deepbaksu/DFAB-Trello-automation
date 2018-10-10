@@ -22,7 +22,7 @@ TEAM_INFO = {
 DONE_LIST_NAME = '완료'
 BOARD_LISTS = ['아이디어', '오늘 할 일', '완료', '일시정지']
 
-ADMIN_USERS = ['jinwoopark8']
+ADMIN_USERS = ['jinwoopark8', 'minjikim59', 'martinhwang']
 
 ## logger
 LOG_FILENAME = os.getcwd() + '/dfabTrello.log'
