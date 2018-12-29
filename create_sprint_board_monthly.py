@@ -17,6 +17,6 @@ for team_info in TEAM_INFO.values():
 
     cards_archiver.archive_done_cards(resource_service, DONE_LIST_NAME, yesterday)
     new_board_id = board_creator.create_board()
-    board_creator.move_essential_lists(new_board_id, BOARD_LISTS)
-    board_creator.update_labels(new_board_id)
     board_creator.update_members(new_board_id, ADMIN_USERS)
+    board_creator.update_labels(new_board_id)
+    board_creator.move_essential_lists(new_board_id, BOARD_LISTS)
